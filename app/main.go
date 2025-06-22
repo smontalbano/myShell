@@ -27,13 +27,16 @@ func main() {
 		if found {
 			if command == "echo" {
 				fmt.Println(args)
+			} else {
+				fmt.Println(command + ": command not found")
 			}
 		} else {
 
 			if command == "exit" {
 				os.Exit(0)
+			} else {
+				fmt.Println(command + ": command not found")
 			}
 		}
-		fmt.Println(command + ": command not found")
 	}
 }
