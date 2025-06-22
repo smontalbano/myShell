@@ -7,35 +7,52 @@ import (
 	"strings"
 )
 
-func EvaluateInput(command string) (string, string, bool) {
-	command = strings.TrimSpace(command)
-	return strings.Cut(command, " ")
+func evaluateInput(command string) []string {
+	return strings.Fields(command)
+}
+
+func readStdio() ([]string, error) {
+	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		return []string{}, fmt.Errorf("input error: %v", err)
+	}
+	return evaluateInput(input), nil
+}
+
+func handleExit() {
+	os.Exit(0)
+}
+
+func handleEcho(args []string) {
+	fmt.Println(strings.Join(args, " "))
 }
 
 func main() {
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
 
-		command, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		input, err := readStdio()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error reading input: ", err)
 			os.Exit(1)
 		}
 
-		command, args, found := EvaluateInput(command)
+		cmd := input[0]
+		args := input[1:]
 
-		if found {
-			if command == "echo" {
-				fmt.Println(args)
+		switch cmd {
+		case "exit":
+			if len(args) != 0 {
+				fmt.Println("Too many arguments for exit: " + strings.Join(args, " "))
 			} else {
-				fmt.Println(command + ": command not found")
+				handleExit()
 			}
-		} else {
 
-			if command == "exit" {
-				os.Exit(0)
+		case "echo":
+			if len(args) == 0 {
+				fmt.Println("Not enough arguments for echo")
 			} else {
-				fmt.Println(command + ": command not found")
+				handleEcho(args)
 			}
 		}
 	}
