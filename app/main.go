@@ -7,8 +7,9 @@ import (
 	"strings"
 )
 
-func TrimCommand(command string) string {
-	return strings.TrimSpace(command)
+func EvaluateInput(command string) (string, string, bool) {
+	command = strings.TrimSpace(command)
+	return strings.Cut(command, " ")
 }
 
 func main() {
@@ -21,10 +22,17 @@ func main() {
 			os.Exit(1)
 		}
 
-		command = TrimCommand(command)
+		command, args, found := EvaluateInput(command)
 
-		if command == "exit 0" {
-			os.Exit(0)
+		if found {
+			if command == "echo" {
+				fmt.Println(args)
+			}
+		} else {
+
+			if command == "exit" {
+				os.Exit(0)
+			}
 		}
 		fmt.Println(command + ": command not found")
 	}
