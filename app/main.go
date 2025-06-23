@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -25,12 +26,27 @@ func readStdio() ([]string, error) {
 	return evaluateInput(input), nil
 }
 
-func handleExit() {
-	os.Exit(0)
+func handleExit(args []string) {
+	if len(args) > 1 {
+		fmt.Println("Too many arguments for exit: " + strings.Join(args, " "))
+	} else if len(args) == 0 {
+		os.Exit(0)
+	} else {
+		if num, err := strconv.Atoi(args[0]); err != nil {
+			fmt.Println("Invalid exit code: " + args[0] + "\nExit code must be of type integer")
+			return
+		} else {
+			os.Exit(num)
+		}
+	}
 }
 
 func handleEcho(args []string) {
-	fmt.Println(strings.Join(args, " "))
+	if len(args) == 0 {
+		fmt.Println("Not enough arguments for echo")
+	} else {
+		fmt.Println(strings.Join(args, " "))
+	}
 }
 
 func handleType(cmd string) {
@@ -54,8 +70,22 @@ func findBinFile(bin string) (string, bool) {
 	return "", false
 }
 
-// TODO pass arg checks to respective handler functions
+func parseCommand(cmd string, args []string) {
+	switch cmd {
+	case "exit":
+		handleExit(args)
 
+	case "echo":
+		handleEcho(args)
+
+	case "type":
+		if len(args) != 1 {
+			fmt.Printf("Incorrect number of arguments for type\nExpected: 1 Received: %v\n", len(args))
+		} else {
+			handleType(args[0])
+		}
+	}
+}
 func main() {
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
@@ -66,32 +96,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		cmd := input[0]
-		args := input[1:]
-
-		switch cmd {
-		case "exit":
-			if len(args) != 0 {
-				fmt.Println("Too many arguments for exit: " + strings.Join(args, " "))
-			} else {
-				handleExit()
-			}
-
-		case "echo":
-			if len(args) == 0 {
-				fmt.Println("Not enough arguments for echo")
-			} else {
-				handleEcho(args)
-			}
-
-		case "type":
-			if len(args) > 1 {
-				fmt.Println("Too many arguments for type:  " + strings.Join(args, " "))
-			} else if len(args) < 1 {
-				fmt.Println("Not enough arguments for type")
-			} else {
-				handleType(args[0])
-			}
-		}
+		cmd, args := input[0], input[1:]
+		parseCommand(cmd, args)
 	}
 }
