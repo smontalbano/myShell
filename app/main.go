@@ -27,6 +27,12 @@ func handleEcho(args []string) {
 	fmt.Println(strings.Join(args, " "))
 }
 
+// TODO: Add functionality to check for other types
+
+func handleType(cmd string) {
+	fmt.Printf("%s is a shell builtin\n", cmd)
+}
+
 func main() {
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
@@ -53,6 +59,15 @@ func main() {
 				fmt.Println("Not enough arguments for echo")
 			} else {
 				handleEcho(args)
+			}
+
+		case "type":
+			if len(args) > 1 {
+				fmt.Println("Too many arguments for type:  " + strings.Join(args, " "))
+			} else if len(args) < 1 {
+				fmt.Println("Not enough arguments for type")
+			} else {
+				handleType(args[0])
 			}
 		}
 	}
