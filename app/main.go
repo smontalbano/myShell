@@ -33,15 +33,28 @@ func handleEcho(args []string) {
 	fmt.Println(strings.Join(args, " "))
 }
 
-// TODO: Add functionality to check for other types
-
-func handleType(arg string) {
-	if v := builtins[arg]; v {
-		fmt.Printf("%s is a shell builtin\n", arg)
+func handleType(cmd string) {
+	if v := builtins[cmd]; v {
+		fmt.Printf("%s is a shell builtin\n", cmd)
+	} else if file, exist := findBinFile(cmd); exist {
+		fmt.Printf("%s is %s\n", cmd, file)
 	} else {
-		fmt.Printf("Not found: %s\n", arg)
+		fmt.Printf("%s not found\n", cmd)
 	}
 }
+
+func findBinFile(bin string) (string, bool) {
+	paths := os.Getenv("PATH")
+	for _, path := range strings.Split(paths, ":") {
+		file := path + "/" + bin
+		if _, err := os.Stat(file); err == nil {
+			return file, true
+		}
+	}
+	return "", false
+}
+
+// TODO pass arg checks to respective handler functions
 
 func main() {
 	for {
