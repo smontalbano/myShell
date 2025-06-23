@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 )
@@ -84,6 +86,20 @@ func parseCommand(cmd string, args []string) {
 		} else {
 			handleType(args[0])
 		}
+	default:
+		checkForCommand(cmd, args, os.Stdout)
+	}
+}
+
+func checkForCommand(cmd string, args []string, out io.Writer) {
+	if file, exists := findBinFile(cmd); exists {
+		runner := exec.Command(file, args...)
+		result, err := runner.CombinedOutput()
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
+		}
+		out.Write(result)
 	}
 }
 func main() {
