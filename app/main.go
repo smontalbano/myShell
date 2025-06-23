@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+var builtins = map[string]bool{
+	"exit": true,
+	"echo": true,
+	"type": true,
+}
+
 func evaluateInput(command string) []string {
 	return strings.Fields(command)
 }
@@ -29,8 +35,12 @@ func handleEcho(args []string) {
 
 // TODO: Add functionality to check for other types
 
-func handleType(cmd string) {
-	fmt.Printf("%s is a shell builtin\n", cmd)
+func handleType(arg string) {
+	if v := builtins[arg]; v {
+		fmt.Printf("%s is a shell builtin\n", arg)
+	} else {
+		fmt.Printf("Not found: %s\n", arg)
+	}
 }
 
 func main() {
