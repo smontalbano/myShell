@@ -22,9 +22,7 @@ func evaluateInput(command string) []string {
 
 func readStdio() ([]string, error) {
 	input, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	if err != nil {
-		return []string{}, fmt.Errorf("input error: %v", err)
-	}
+	errorCheck(err)
 	return evaluateInput(input), nil
 }
 
@@ -89,6 +87,9 @@ func parseCommand(cmd string, args []string) {
 	case "pwd":
 		handlePwd()
 
+	case "cd":
+		handleCd(args)
+
 	default:
 		checkForCommand(cmd, args, os.Stdout)
 	}
@@ -96,10 +97,7 @@ func parseCommand(cmd string, args []string) {
 
 func handlePwd() {
 	currentDirectory, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	errorCheck(err)
 	fmt.Println(currentDirectory)
 }
 
@@ -107,22 +105,32 @@ func checkForCommand(cmd string, args []string, out io.Writer) {
 	if file, exists := findBinFile(cmd); exists {
 		runner := exec.Command(file, args...)
 		result, err := runner.CombinedOutput()
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+		errorCheck(err)
 		out.Write(result)
 	}
 }
+
+func errorCheck(err error) {
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+}
+
+func handleCd(path []string) {
+	if len(path) < 1 || len(path) > 1 {
+		fmt.Printf("Incorrect number of arguments for cd\nExpected: 1 Received: %v\n", len(path))
+	}
+	err := os.Chdir(path[0])
+	errorCheck(err)
+}
+
 func main() {
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
 
 		input, err := readStdio()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error reading input: ", err)
-			os.Exit(1)
-		}
+		errorCheck(err)
 
 		cmd, args := input[0], input[1:]
 		parseCommand(cmd, args)
