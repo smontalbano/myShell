@@ -86,9 +86,21 @@ func parseCommand(cmd string, args []string) {
 		} else {
 			handleType(args[0])
 		}
+	case "pwd":
+		handlePwd()
+
 	default:
 		checkForCommand(cmd, args, os.Stdout)
 	}
+}
+
+func handlePwd() {
+	currentDirectory, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+	fmt.Println(currentDirectory)
 }
 
 func checkForCommand(cmd string, args []string, out io.Writer) {
