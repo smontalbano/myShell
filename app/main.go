@@ -120,8 +120,17 @@ func errorCheck(err error) {
 }
 
 func handleCd(path []string) {
-	if len(path) < 1 || len(path) > 1 {
+	home, err := os.UserHomeDir()
+	errorCheck(err)
+
+	if len(path) > 1 {
 		fmt.Printf("Incorrect number of arguments for cd\nExpected: 1 Received: %v\n", len(path))
+	} else if len(path) == 0 {
+		err = os.Chdir(home)
+		errorCheck(err)
+	} else if string(path[0][0]) == "~" {
+		err = os.Chdir(home + path[0][1:])
+		errorCheck(err)
 	} else {
 		err := os.Chdir(path[0])
 		errorCheck(err)
