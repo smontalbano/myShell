@@ -122,14 +122,19 @@ func errorCheck(err error) {
 func handleCd(path []string) {
 	if len(path) < 1 || len(path) > 1 {
 		fmt.Printf("Incorrect number of arguments for cd\nExpected: 1 Received: %v\n", len(path))
+	} else {
+		err := os.Chdir(path[0])
+		errorCheck(err)
 	}
-	err := os.Chdir(path[0])
-	errorCheck(err)
 }
 
 func main() {
 	for {
-		fmt.Fprint(os.Stdout, "$ ")
+
+		currentPath, err := os.Getwd()
+		errorCheck(err)
+
+		fmt.Fprint(os.Stdout, currentPath+"$ ")
 
 		input, err := readStdio()
 		errorCheck(err)
